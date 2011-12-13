@@ -138,7 +138,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'pocketgenome.urls'
+ROOT_URLCONF = 'GeneG.urls'
 
 TEMPLATE_DIRS = (
 	'server/templates/',
