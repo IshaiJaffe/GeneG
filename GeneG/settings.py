@@ -237,3 +237,9 @@ LOGIN_URL = '/login/'
 REGISTER_URL = '/register/'
 
 LOGIN_REDIRECT_URL = '/'
+
+AWS_ACCESS_KEY_ID = 'AKIAIDA24JOO6A75ZGZQ'
+
+AWS_SECRET_ACCESS_KEY = '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'
+
+AWS_URL = 'https://s3-bucket.s3.amazonaws.com'
