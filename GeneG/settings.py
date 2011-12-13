@@ -1,7 +1,9 @@
 # Django settings for pocketgenome project.
+import os
 
 PRODUCTION = 'MONGOLAB_URI' in os.environ
 STAGING = os.environ.get('IS_STAGING') == 'True'
+CODE_ROOT = 'G:/HW/Lab/pocketgenome/pocketgenome/'
 if STAGING:
     PRODUCTION = False
 
@@ -39,14 +41,13 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django_mongodb_engine',
-            'NAME': 'cubicl',
+            'NAME': 'pocketgenome',
             'USER': '',
             'PASSWORD': '',
             'HOST': 'localhost',
             'PORT': 27017,
         }
     }
-}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -61,7 +62,7 @@ TIME_ZONE = 'America/Chicago'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 1
+SITE_ID = '4ee7856d5c5aac1b84000019'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 

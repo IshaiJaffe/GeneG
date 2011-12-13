@@ -1,1 +1,1 @@
-c:\bin\mongo\mongorestore.exe --drop --filter "{ name : { $ne : '_id_' } }" -d cubicl dump\cubicl
+c:\bin\mongo\mongorestore.exe --drop --filter "{ name : { $ne : '_id_' } }" -d GeneG dump\GeneG
