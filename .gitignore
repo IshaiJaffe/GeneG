@@ -6,7 +6,6 @@ include
 /share
 .Python
 GeneG/.idea
-dump
 *.pyc
 *.pyo
 *.swp

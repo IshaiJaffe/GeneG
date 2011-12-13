@@ -2,18 +2,12 @@
 import os
 
 PRODUCTION = 'MONGOLAB_URI' in os.environ
-STAGING = os.environ.get('IS_STAGING') == 'True'
-CODE_ROOT = 'G:/HW/Lab/pocketgenome/pocketgenome/'
-if STAGING:
-    PRODUCTION = False
+CODE_ROOT = 'G:/HW/Lab/GeneG/GeneG/'
 
-BASE_URL = 'http://dev.empeeric.com'
-
-if STAGING:
-    BASE_URL = 'http://cubicl-dev.herokuapp.com/'
+BASE_URL = 'http://dev.empeeric.com/'
 
 if PRODUCTION:
-    BASE_URL = 'http://cubicl.herokuapp.com/'
+    BASE_URL = 'http://geneg.herokuapp.com/'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -25,7 +19,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 import urlparse
-if PRODUCTION or STAGING:
+if PRODUCTION:
     _DB_PARAMS = urlparse.urlparse(os.environ['MONGOLAB_URI'].replace('mongodb', 'http'))
     DATABASES = {
         'default': {
@@ -41,7 +35,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django_mongodb_engine',
-            'NAME': 'pocketgenome',
+            'NAME': 'geneg',
             'USER': '',
             'PASSWORD': '',
             'HOST': 'localhost',
@@ -62,7 +56,7 @@ TIME_ZONE = 'America/Chicago'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = '4ee7856d5c5aac1b84000019'
+SITE_ID=u'4ee7dc145c5aac0a80000019'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
@@ -92,7 +86,7 @@ MEDIA_URL = '/media/'
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = '/static/'
 
-if not PRODUCTION and not STAGING:
+if not PRODUCTION:
     STATIC_ROOT = CODE_ROOT + STATIC_ROOT
 
 # URL prefix for static files.
@@ -238,8 +232,8 @@ REGISTER_URL = '/register/'
 
 LOGIN_REDIRECT_URL = '/'
 
-AWS_ACCESS_KEY_ID = 'AKIAIDA24JOO6A75ZGZQ'
+AWS_ACCESS_KEY_ID = 'AKIAIK5YCK53XZM33RPA'
 
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_SECRET_ACCESS_KEY = 'nzYrSLG6+FMWzPoXe0i5gONsRimosD7nvqm41Uv4'
 
 AWS_URL = 'https://s3-bucket.s3.amazonaws.com'
