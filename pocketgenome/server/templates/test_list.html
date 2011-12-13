@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{% block list_title %}{{ object_list.model }}{% endblock %}</h2>
+<ul>
+    {% for obj in object_list %}
+    {% block list_item %}<li>{{ obj }}</li>{% endblock %}
+    {% endfor %}
+</ul>
+{% endblock %}

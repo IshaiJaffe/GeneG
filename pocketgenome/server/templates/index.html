@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+        <script type="text/javascript">
+
+            $(document).ready(function(){
+
+            });
+        </script>
+{% endblock %}
+
+{% block content %}
+        <div >
+            <ul id='contacts_list'></ul>
+            This is the top toolbar
+        </div>
+        <div id='contacts_bar'>
+            This is the contact bar
+        </div>
+        <div id='main_view'>
+            This is the main view
+        </div>
+{% endblock %}
+
+{% block client_templates %}
+    <script type="text/x-template" id='contacts_bar_template'>
+        {% include 'client_templates/contacts_bar.html' %}
+    </script>
+    <script type="text/x-template" id='settings_template'>
+        {% include 'client_templates/settings.html' %}
+    </script>
+    <script type="text/x-template" id='conversation_template'>
+        {% include 'client_templates/conversation.html' %}
+    </script>
+{% endblock %}

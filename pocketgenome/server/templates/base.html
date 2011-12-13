@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+{% load media %}
+{% load tmpl %}
+<html>
+<head>
+    <title>{% block title %}Cubicl | {% block subtitle %}Home{% endblock %}{% endblock %}</title>
+    <!--[if (!IE)|(gte IE 8)]><!--> {% include_media 'main.css' %} <!--<![endif]-->
+    <!--[if lt IE 8]> {% include_media 'main-ie.css' %} <![endif]-->
+    {% include_media 'main.js' %}
+    {% block extra_head %}
+    {% endblock %}
+</head>
+<body>
+    <div id='gray_cover' class='gray_cover' style='display:none;' onclick='close_dialog();'>
+        &nbsp;
+    </div>
+    <div id='dialogs_container'></div>
+    <div id="content">
+    {% block content %}
+    {% endblock %}
+    </div>
+
+    <div id="hidden_templates_div" style="display:none;">
+        {% block client_templates %}
+        {% endblock %}
+        <audio id='audio_bubble'>
+            <source src="{% media_url 'sounds/bubble.mp3' %}" type="audio/mp3" />
+        </audio>
+        <script type='text/x-jquery-tmpl' id='message_dialog'>
+            <div class="popup" style='width: 360px;'>
+                <a href="javascript:void(0)" class="close-btn dialog_close">&nbsp;</a>
+                <h2>{% t_var title %}</h2>
+                <p>{% t_var message %}</p>
+                <center>
+                    <div class="form2">
+                        <form action="#" method="post">
+                            <ul>
+                                <li class="last clearfix" style='width: 123px;'>
+                                    <input type='button' class="continue-btn dialog_close" value='' />
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </center>
+            </div>
+        </script>
+        <script type='text/x-jquery-tmpl' id='login_dialog'>
+            <div class="popup" style='width: 360px;'>
+                <a href="javascript:void(0)" class="close-btn dialog_close">&nbsp;</a>
+                <h2>Login</h2>
+                <p>You must <a href="{{ LOGIN_URL }}?next={% t_var next %}">login</a> or <a href="{{ REGISTER_URL }}?next={% t_var next %}" >register</a> to do this.</p>
+                <center>
+                    <div class="form2">
+                        <form action="#" method="post">
+                            <ul>
+                                <li class="last clearfix" style='width:124px;'>
+                                    <a href="javascript:void(0)" class="link2 dialog_close">&nbsp;</a>
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </center>
+            </div>
+        </script>
+
+        <script type='text/x-jquery-tmpl' id='question_dialog'>
+            <div class="popup" style='width: 360px;'>
+                <a href="javascript:void(0)" class="close-btn dialog_close">&nbsp;</a>
+                <h2>{% t_var title %}</h2>
+                <p>{% t_var message %}</p>
+                <center>
+                    <div class="form2">
+                        <form action="#" method="post">
+                            <ul>
+                                <li class="last clearfix" style='width:275px;'>
+                                    <input type="button" class="continue-btn dialog_submit" value=""/>
+                                    <a href="javascript:void(0)" class="link2 dialog_close">&nbsp;</a>
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </center>
+            </div>
+        </script>
+        <script type='text/x-jquery-tmpl' id='input_dialog'>
+            <div class="popup">
+                <a href="javascript:void(0)" class="close-btn dialog_close">&nbsp;</a>
+                <h2>{% t_var title %}</h2>
+                <p>{% t_var message %}</p>
+                <center>
+                    <div class="form2">
+                        <form action="#" method="post">
+                            <ul>
+                                <li class='clearfix'>
+                                    <input type='text' name='dialog_text' g_text='{% t_var g_text %}' value='{% t_var value %}' style='width:100%;' class='ghost_text'/>
+                                </li>
+                                <li class="last clearfix">
+                                    <input type="button" class="submit-btn dialog_submit" value=""/>
+                                    <a href="javascript:void(0)" class="link2 dialog_close">&nbsp;</a>
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </center>
+            </div>
+        </script>
+</body>
+</html>

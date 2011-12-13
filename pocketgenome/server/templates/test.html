@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load tmpl %}
+{% block subtitle %}Test{% endblock %}
+{% block extra_head %}
+        <script type='text/javascript'>
+            $(document).ready(function(){
+                render_append_template({template:'test_template', url:'/api/v1/email/?format=json'});
+                message_dialog('title','message');
+            });
+        </script>
+{% endblock %}
+{% block content %}
+        testing : {{ msg }}
+{% endblock %}
+
+{% block client_templates %}
+    <script type='text/x-jquery-tmpl' id='test_template'>
+        <ul>
+        {% t_for email objects %}
+            <li>{% t_var email.Subject %}</li>
+        {% t_endfor %}
+        </ul>
+    </script>
+{% endblock %}
+
