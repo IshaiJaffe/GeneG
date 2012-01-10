@@ -3,12 +3,23 @@ from django.db import models
 from djangotoolbox import fields
 from django_mongodb_engine.fields import GridFSField
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 MAX_FIELD_LENGTH = 400
 
 TEST_SOURCES = (
     ('NCBI','NCBI'),
 )
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    genome = models.FileField(upload_to='genomes',null=True,blank=True)
+
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+post_save.connect(create_user_profile, sender=User)
 
 class Test(models.Model):
 

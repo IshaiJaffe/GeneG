@@ -1,1 +1,4 @@
 pymongo
+django-storages
+boto
+
