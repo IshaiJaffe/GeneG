@@ -1,4 +1,4 @@
 pymongo
 django-storages
 boto
-
+psycopg2
