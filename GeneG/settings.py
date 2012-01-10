@@ -2,7 +2,7 @@
 import os
 
 PRODUCTION = 'MONGOLAB_URI' in os.environ
-CODE_ROOT = 'G:/HW/Lab/GeneG/GeneG/'
+CODE_ROOT = 'C:/Uni/GeneG/GeneG/'
 
 BASE_URL = 'http://dev.empeeric.com/'
 
