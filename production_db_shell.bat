@@ -1,1 +1,1 @@
-mongo -u heroku_app1726026 -p 7dki386htormvc4qdug35q1u6i dbh83.mongolab.com:27837/heroku_app1726026
+mongo -u heroku_app2415124 -p 50k72us9p8md7vqucqveb14k0c ds029267.mongolab.com:29267/heroku_app2415124
