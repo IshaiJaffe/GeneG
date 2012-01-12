@@ -13,6 +13,8 @@ v1_api.register(TestResource())
 v1_api.register(TestResultResource())
 v1_api.register(UserResource())
 
+v1_api.register(PhenotypeFamilyResource())
+v1_api.register(LoginResource())
 urlpatterns = patterns('server.views',
     (r'^test/',TestView.as_view()),
     (r'^emails/',ListView.as_view(model=TestVariant)),
@@ -21,5 +23,5 @@ urlpatterns = patterns('server.views',
     (r'^facebook/access_token/', 'facebook_access_token'),
     (r'^/',login_required(MainView.as_view())),
     (r'^mobile/(.*)$', django.views.static.serve, {'document_root': '../www/'}),
-
+    (r'^process/(?P<user_id>[0-9a-f]+)/', 'process'),
 )

@@ -1,10 +1,13 @@
 # Create your views here.
 import urllib
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
 from django.views.generic.base import TemplateView, View
+from server import tasks
 import settings
+from tastypie import http
 
 class CubicalView(TemplateView):
     pass
@@ -56,3 +59,9 @@ class MainView(CubicalView):
     def get_context_data(self, **kwargs):
         return {}
 
+def process(request,user_id):
+    if request.method != 'POST' and not settings.DEBUG:
+        return http.HttpMethodNotAllowed()
+    user = User.objects.get(id=user_id)
+    tasks.process_genome(user)
+    return HttpResponse('OK')

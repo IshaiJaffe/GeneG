@@ -152,6 +152,9 @@ INSTALLED_APPS = (
     'server',
 	'tastypie',
 	'mediagenerator',
+    'djcelery',
+    'djkombu',
+
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -248,3 +251,10 @@ AWS_STORAGE_BUCKET_NAME = 'geneg-genomes'
 #AWS_URL = 'https://s3-bucket.s3.amazonaws.com'
 
 AUTH_PROFILE_MODULE = 'server.UserProfile'
+
+import djcelery
+djcelery.setup_loader()
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+CELERY_RESULT_DBURI = DATABASES['default']
+
+CELERY_IMPORTS = ("server.tasks", )
