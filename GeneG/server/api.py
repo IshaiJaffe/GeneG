@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User, AnonymousUser
-from server.models import Test, UserTestResult
+from server.models import TestVariant, UserTestResult
 from tastypie.authentication import Authentication, ApiKeyAuthentication
 from tastypie.authorization import Authorization
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
@@ -54,7 +54,7 @@ class TestResultResource(ModelResource):
 class TestResource(ModelResource):
 
     class Meta:
-        queryset = Test.objects.all()
+        queryset = TestVariant.objects.all()
         allowed_methods = ['get']
         authentication = ApiKeyAuthentication()
 
