@@ -21,12 +21,18 @@ def create_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
 post_save.connect(create_user_profile, sender=User)
 
-class Test(models.Model):
+class Phenotype(models.Model):
+    name = models.CharField(max_length=30)
+    description = models.TextField(max_length=755,default='')
+
+class TestVariant(models.Model):
 
     name = models.CharField(max_length=30)
-    description = models.CharField(max_length=700)
-    source = models.CharField(max_length='10',choices=TEST_SOURCES, default='NCBI')
-    target_script = models.CharField(max_length='50',null=True, blank=True)
+    description = models.CharField(max_length=700,default='',blank=True)
+    source = models.CharField(max_length=30,null=True,blank=True)
+    #target_script = models.CharField(max_length=50,null=True, blank=True)
+    phenotype = models.ForeignKey(Phenotype)
+    pubmed_id = models.CharField(max_length=30)
     meta = models.TextField(max_length=755,null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created = models.DateTimeField(default=datetime.now, editable=False)
@@ -34,9 +40,18 @@ class Test(models.Model):
     def __unicode__(self):
         return self.name
 
+class PhenotypeFamily(models.Model):
+    name = models.CharField(max_length=30)
+    description = models.TextField(max_length=755,default='')
+
+class PhenotypeFamilyRelation(models.Model):
+    family = models.ForeignKey(PhenotypeFamily)
+    phenotype = models.ForeignKey(Phenotype)
+
+
 class UserTestResult(models.Model):
     user = models.ForeignKey(User)
-    test = models.ForeignKey(Test)
+    variant = models.ForeignKey(TestVariant)
     result = models.TextField(max_length=255,default='')
     meta= models.TextField(max_length=755,default='')
     modified = models.DateTimeField()
