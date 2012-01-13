@@ -209,3 +209,18 @@ class TestResource(MyResource):
         allowed_methods = ['get']
         authentication = ApiKeyAuthentication()
 
+# gluzman's api
+class VariantResource(MyResource):
+    class Meta:
+        queryset = TestVariant.objects.all()
+        allowed_methods = ['get','post','put','delete']
+        authorization = Authorization()
+        authentication = ApiKeyAuthentication()
+
+class PhenotypeResource(MyResource):
+    class Meta:
+        queryset = Phenotype.objects.all()
+        allowed_methods = ['get','post','put','delete']
+        authentication = ApiKeyAuthentication()
+        authorization = Authorization()
+

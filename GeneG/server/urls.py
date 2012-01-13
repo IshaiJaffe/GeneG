@@ -15,10 +15,15 @@ v1_api.register(UserResource())
 
 v1_api.register(PhenotypeFamilyResource())
 v1_api.register(LoginResource())
+
+gluz_api = Api(api_name='gluz')
+gluz_api.register(VariantResource())
+
 urlpatterns = patterns('server.views',
     (r'^test/',TestView.as_view()),
     (r'^emails/',ListView.as_view(model=TestVariant)),
     (r'^api/', include(v1_api.urls)),
+    (r'^api/', include(gluz_api.urls)),
     (r'^facebook/autherize/', 'facebook_autherize'),
     (r'^facebook/access_token/', 'facebook_access_token'),
     (r'^/',login_required(MainView.as_view())),

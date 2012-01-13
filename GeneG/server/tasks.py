@@ -25,3 +25,10 @@ def process_genome_file(fp):
     def process_vcf_chunk(v):
         print v
     vcf.VCFfilter(fp,None,process_vcf_chunk)
+
+from django.test.testcases import TestCase
+
+#class test_genome(TestCase):
+#    path = 'C:/Users/Ishai/Downloads/test.vcf'
+#    fp = open(path)
+#    process_genome_file(fp)
