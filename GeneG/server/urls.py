@@ -18,6 +18,7 @@ v1_api.register(LoginResource())
 
 gluz_api = Api(api_name='gluz')
 gluz_api.register(VariantResource())
+gluz_api.register(PhenotypeResource())
 
 urlpatterns = patterns('server.views',
     (r'^test/',TestView.as_view()),
