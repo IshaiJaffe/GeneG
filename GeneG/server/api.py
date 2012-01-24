@@ -211,7 +211,7 @@ class TestResource(MyResource):
 
 # gluzman's api
 class VariantResource(MyResource):
-    phenotype = fields.ForeignKey('server.api.PhenotypeResource',attribute='phenotype')
+    phenotype = fields.ForeignKey('server.api.PhenotypeResource',attribute='phenotype',null=True,blank=False)
     class Meta:
         queryset = TestVariant.objects.all()
 #        fields = ['id','name','description','source','phenotype_id']
