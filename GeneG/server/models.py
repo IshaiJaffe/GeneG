@@ -41,12 +41,13 @@ class TestVariant(models.Model):
     description = models.CharField(max_length=700,default='',blank=True)
     source = models.CharField(max_length=30,null=True,blank=True)
     #target_script = models.CharField(max_length=50,null=True, blank=True)
-    phenotype = models.ForeignKey(Phenotype,null=True)
+    phenotype = models.ForeignKey(Phenotype,null=True,blank=False)
     pubmed_id = models.CharField(max_length=30,null=True,blank=True)
     p_value = models.FloatField(null=True,blank=True)
     meta = models.TextField(max_length=755,null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created = models.DateTimeField(default=datetime.now, editable=False)
+    risk_allel = models.CharField(max_length=3,null=True,blank=True)
 
     def __unicode__(self):
         return unicode(self.name)

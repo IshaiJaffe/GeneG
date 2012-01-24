@@ -211,11 +211,14 @@ class TestResource(MyResource):
 
 # gluzman's api
 class VariantResource(MyResource):
+    phenotype = fields.ForeignKey('server.api.PhenotypeResource',attribute='phenotype')
     class Meta:
         queryset = TestVariant.objects.all()
+#        fields = ['id','name','description','source','phenotype_id']
         allowed_methods = ['get','post','put','delete']
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
+        always_return_data = True
 
 class PhenotypeResource(MyResource):
     class Meta:
@@ -223,4 +226,5 @@ class PhenotypeResource(MyResource):
         allowed_methods = ['get','post','put','delete']
         authentication = ApiKeyAuthentication()
         authorization = Authorization()
+        always_return_data = True
 

@@ -41,5 +41,3 @@ pip-log.txt
 /GeneG/django/conf/locale/
 /GeneG/django/conf/app_template/
 /GeneG/django/conf/project_template/
-/GeneG/django/test/
-/GeneG/django/utils/unittest/

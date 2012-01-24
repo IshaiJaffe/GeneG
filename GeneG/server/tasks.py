@@ -26,9 +26,9 @@ def process_genome_file(fp):
         print v
     vcf.VCFfilter(fp,None,process_vcf_chunk)
 
-from django.test.testcases import TestCase
+from django.test import TestCase
 
-#class test_genome(TestCase):
-#    path = 'C:/Users/Ishai/Downloads/test.vcf'
-#    fp = open(path)
-#    process_genome_file(fp)
+def test_genome():
+    path = 'C:/Users/Ishai/Downloads/test.vcf'
+    fp = open(path)
+    process_genome_file(fp)
