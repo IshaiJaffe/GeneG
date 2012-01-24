@@ -1,1 +1,1 @@
-c:\bin\mongo\mongorestore.exe --drop --filter "{ name : { $ne : '_id_' } }" -d GeneG dump\GeneG
+c:\bin\mongo\mongorestore.exe --drop --filter "{ name : { $ne : '_id_' } }" -d geneg dump\heroku_app2415124

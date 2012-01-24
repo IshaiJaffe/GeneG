@@ -2,7 +2,7 @@
 import os
 
 PRODUCTION = 'MONGOLAB_URI' in os.environ
-CODE_ROOT = 'G:/HW/Lab/GeneG/GeneG/'
+CODE_ROOT = 'C:/Uni/GeneG/GeneG/'
 
 BASE_URL = 'http://dev.empeeric.com/'
 
@@ -152,6 +152,9 @@ INSTALLED_APPS = (
     'server',
 	'tastypie',
 	'mediagenerator',
+    'djcelery',
+    'djkombu',
+
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -232,8 +235,26 @@ REGISTER_URL = '/register/'
 
 LOGIN_REDIRECT_URL = '/'
 
+#Storage
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAIK5YCK53XZM33RPA'
-
 AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'geneg-genomes'
+#AWS_S3_CUSTOM_DOMAIN = 'd1hg4pg1k1dk6u.cloudfront.net'
 
-AWS_URL = 'https://s3-bucket.s3.amazonaws.com'
+
+
+#AWS_ACCESS_KEY_ID = 'AKIAIK5YCK53XZM33RPA'
+
+#AWS_SECRET_ACCESS_KEY = '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'
+
+#AWS_URL = 'https://s3-bucket.s3.amazonaws.com'
+
+AUTH_PROFILE_MODULE = 'server.UserProfile'
+
+import djcelery
+djcelery.setup_loader()
+BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+CELERY_RESULT_DBURI = DATABASES['default']
+
+CELERY_IMPORTS = ("server.tasks", )

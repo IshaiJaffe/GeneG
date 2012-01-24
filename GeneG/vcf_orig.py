@@ -349,7 +349,7 @@ class VCF(CoordData):
 				res.sk = set([key,])
 				return res
 
-def VCFfilter(f, filter=None, func=None, count=False, chunk = 10000, maxchunks = None, *vcfFormatArgs):
+def VCFfilter(fname, filter=None, field=None, count=False, chunk = 10000, maxchunks = None, *vcfFormatArgs):
 	# Reads a VCF file chunk by chunk, performing filtering and field extraction (or element counting) for each chunk.
 	#
 	# Output:
@@ -360,11 +360,11 @@ def VCFfilter(f, filter=None, func=None, count=False, chunk = 10000, maxchunks =
 	# With a test VCF consisting of 50k lines, the optimum chunk size was ~10000. 
 	# The limiting stage seems to be the merger of dictionaries, so it may actually perform faster with filtering than without it.
 
-#		if field and count:
-#			raise ValueError('When count is True, field should be None, because only the count of entries passing the filter will be returned')
-#		f = open(fname)
-#		filtered = {} # filtered VCF.data
-#		yff = [] # (filtered) VCF.data field
+		if field and count:
+			raise ValueError('When count is True, field should be None, because only the count of entries passing the filter will be returned')
+		f = open(fname)
+		filtered = {} # filtered VCF.data
+		yff = [] # (filtered) VCF.data field
 		counter = 0
 		nchunks = 0
 		while True:
@@ -391,17 +391,16 @@ def VCFfilter(f, filter=None, func=None, count=False, chunk = 10000, maxchunks =
 				y = y.filter(filter)
                 
 			if count:
-			    counter+=len(y)
-			func(y)
-#			elif field:
-#				if type(field)==str:
-#					yff.extend(y.field(field))
-#				elif len(field)==2:
-#					yff.extend(y.field(field[0], field[1]))
-#				else:
-#					raise ValueError('field can either be a string or a tuple of size 2: (string, sampleNo)')
-#			else:
-#                        	filtered = dict(filtered, **y.data)
+        	                counter+=len(y)
+			elif field:
+				if type(field)==str:
+					yff.extend(y.field(field))
+				elif len(field)==2:
+					yff.extend(y.field(field[0], field[1]))
+				else:
+					raise ValueError('field can either be a string or a tuple of size 2: (string, sampleNo)')
+			else:
+                        	filtered = dict(filtered, **y.data)
 
 			l = []
 			if stp:
@@ -411,10 +410,10 @@ def VCFfilter(f, filter=None, func=None, count=False, chunk = 10000, maxchunks =
 
 		if count:
 			return counter
-#		elif field:
-#			return yff
-#		else:
-#			z = VCF()
-#			z.data = filtered
-#			z.sk = set(z.data.keys())
-#			return (z)
+		elif field:
+			return yff
+		else:
+			z = VCF()
+			z.data = filtered
+			z.sk = set(z.data.keys())
+			return (z)
