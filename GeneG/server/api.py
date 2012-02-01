@@ -225,6 +225,7 @@ class PhenotypeResource(MyResource):
     class Meta:
         queryset = Phenotype.objects.all()
         allowed_methods = ['get','post','put','delete']
+        filtering = {'name':ALL}
         authentication = ApiKeyAuthentication()
         authorization = Authorization()
         always_return_data = True
