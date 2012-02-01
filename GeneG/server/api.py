@@ -11,7 +11,7 @@ from tastypie.bundle import Bundle
 from tastypie.cache import SimpleCache
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.resources import ModelResource, Resource
-
+from tastypie.constants import ALL
 
 #
 # return only objects that related to the calling user
@@ -215,6 +215,7 @@ class VariantResource(MyResource):
     class Meta:
         queryset = TestVariant.objects.all()
 #        fields = ['id','name','description','source','phenotype_id']
+        filtering = {'name':ALL,'phenotype':ALL}
         allowed_methods = ['get','post','put','delete']
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
