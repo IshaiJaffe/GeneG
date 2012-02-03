@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.list import ListView
 from server.models import TestVariant
 from server.views import TestView, MainView
+import settings
 
 from tastypie.api import Api
 from api import *
@@ -28,6 +29,6 @@ urlpatterns = patterns('server.views',
     (r'^facebook/autherize/', 'facebook_autherize'),
     (r'^facebook/access_token/', 'facebook_access_token'),
     (r'^/',login_required(MainView.as_view())),
-    (r'^mobile/(.*)$', django.views.static.serve, {'document_root': '../www/'}),
+    (r'^mobile/(.*)$', django.views.static.serve, {'document_root': settings.CODE_ROOT + 'www/'}),
     (r'^process/(?P<user_id>[0-9a-f]+)/', 'process'),
 )

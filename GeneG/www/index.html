@@ -1,0 +1,89 @@
+<!DOCTYPE html> 
+<html class="ui-mobile-rendering"> 
+	<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<title>jQuery Mobile Docs - Pages</title> 
+	<link rel="stylesheet"  href="css/jquery.mobile-1.0.1.min.css" />  
+
+	<script src="js/jquery-1.7.1.min.js"></script>
+	<script src="js/jquery.mobile-1.0.1.js"></script>
+	<script>
+	var BASE_URL = 'http://dev.empeeric.com';
+    var api_key = null;
+	$(document).ready( function() {
+	
+		$('#main_page').bind('pageshow', function() {
+			$.get(BASE_URL + '/api/v1/phenotypefamily/?format=json',{},function(data)
+			{
+                var phenotype_families = data.objects;
+				var list = $('#main_list').listview('destroy').empty();
+				for(var i=0; i<data.objects.length; i++)
+				{
+					list.append('<li><a href="#page2">' + data.objects[i].name + '</a></li>');
+				}
+				list.listview();
+                $('li', list).click(function()
+                {
+                    var index = $(this).index('li',list);
+                    var phenotype_family = phenotype_families[i];
+                    $.get(BASE_URL + '/api/v1/')
+                });
+	//		});
+		});
+		});
+		
+		$('#login_button').click(function() {
+			var username = $('input[name=username]').val();
+			var password = $('input[name=password]').val();
+			$.ajax({
+                type:"POST",
+                url:BASE_URL + '/api/v1/login/?format=json',
+                data:{password:password,username:username},
+                success:function(data)
+			{
+                api_key = data.api_key;
+                $('.name_holder').html(data.username);
+				$.mobile.changePage("#main_page", "slideup");
+			},error:function(){
+                alert('error with login');
+            }            });
+		});
+//			$('#dPage').html(''); // animate while we're loading data
+
+	});
+	</script>
+</head> 
+<body> 
+	<div data-role='page' id='login_page'>
+		<div data-role="header" data-theme="f">
+		<h1>Hello </h1>
+		</div><!-- /header -->
+		<div data-role='content' >
+			<div data-role="fieldcontain">
+				<label for="username">Username:</label>
+				<input type="text" name="username" id="username" value=""  />
+			</div>
+			<div data-role="fieldcontain">
+				<label for="password">Password Input:</label>
+				<input type="password" name="password" id="password" value="" />
+			</div>
+			<a href='http://geneg.herokuapp.com' data-role="button" data-inline="true">Create an Account</a>
+			<a href='javascript:void(0);' id='login_button' data-role="button" data-inline="true" data-theme='b'>Login</a>
+		</div>
+	</div>
+	<div data-role='page' id='main_page'>
+		<div data-role="header">
+		<h1>Hello <span class='name_holder'>Guest</span></h1>
+        <a data-role="button" href="#login_page">Log out</a>
+		</div>
+        <div data-role="content">
+            <ul id='main_list' data-role="listview">
+            </ul>
+        </div><!-- /ui-body wrapper -->
+	</div>
+	<div data-role='page' id='results_page'>
+	</div>
+
+</body>
+</html>

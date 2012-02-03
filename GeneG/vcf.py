@@ -81,8 +81,7 @@ class CoordData:
 		if len(self)<20:
 			return pprint.pformat(self.data)
 		else:
-			print "==Showing first 20 elements=="
-			return pprint.pformat(dict((k, self.data[k]) for k in self.data.keys()[0:20])) 
+			return pprint.pformat(dict((k, v) for k,v in self.data.items()[0:20]))
 
 	def __init__ (self):
 		self.data = {}
@@ -111,6 +110,12 @@ def getStrain (tupleOfDicts, sampleNo, field="NUM"):
 def coord (c):
         ccoord = re.search("(.+)@(.+)", c)
         return (ccoord.group(1), ccoord.group(2))
+
+def tryfloat(f):
+    try:
+        return float(f)
+    except:
+        return 0.0
 
 class VCF(CoordData):
         # note CoordData.data in this case is a dictionary of dictionaries 
@@ -143,89 +148,96 @@ class VCF(CoordData):
 	# -- get field:
 	#	y.field 
 
-	def readFromFile(self, fname, refcol=3, altcol=4, qualcol=5, infocol=7, sampleformatcol=8, checkNonRef = False, commentChar = '#', verbose = True, readFromList = False):
-		      # all col numbers are 0-based
-			self.data = {}
-			if verbose:
-				print >> sys.stderr, 'Reading variation data...'
-			if readFromList:
-				snpfile = fname
-			else:
-				snpfile = open (fname)
-			i=0
-			for line in snpfile:
-				line = line.strip()
-				if line[0] == '#':
-					continue
-				linearr = line.split("\t")
-				if checkNonRef:
-					if linearr[refcol].upper() == linearr[altcol].upper():
-						continue
-				pos = linearr[0] + "@" + linearr[1]
+	def readFromFile(self, fname, idcol=2 ,refcol=3, altcol=4, qualcol=5, infocol=7, sampleformatcol=8, checkNonRef = False, commentChar = '#', verbose = True, readFromList = False):
+              # all col numbers are 0-based
+            self.data = {}
+            if verbose:
+                print >> sys.stderr, 'Reading variation data...'
+            if readFromList:
+                snpfile = fname
+            else:
+                snpfile = open (fname)
+            i=0
+            for line in snpfile:
+                line = line.strip()
+                if line[0] == '#':
+                    continue
+                linearr = line.split("\t")
+                if checkNonRef:
+                    if linearr[refcol].upper() == linearr[altcol].upper():
+                        continue
+                pos = linearr[0] + "@" + linearr[1]
 
-				info = {'ALT' : linearr[altcol], 'REF' : linearr[refcol], 'QUAL' : float(linearr[qualcol])}
+                info = {'CHROM':linearr[0],'POS':linearr[1],'ID': linearr[idcol] ,'ALT' : linearr[altcol], 'REF' : linearr[refcol], 'QUAL' : tryfloat(linearr[qualcol])}
 
-				infoarr = linearr[infocol].split(";")
-				for field in infoarr:
-					ft = field.split("=")
-					tag = ft[0]	
-					if re.search("\.", ft[1]):
-						info[tag] = float(ft[1])
-					else:
-						info[tag] = int(ft[1])
-				
-											
-					samlist = []
-					strfields = linearr[sampleformatcol].split(":")
-					samcount = 1
-					for col in range(sampleformatcol+1, len(linearr)):
-						strarr = linearr[col].split(":")
-		
-						if strarr[0] == "./.":
-							samcount += 1
-							continue
-		
-						thissam = {'NUM' : samcount}
-						tagi = 0
-						for tag in strfields:
-							#print strarr, tagi, tag, strarr[tagi]
-							if tag=="GT":
-								gts = re.split("\||\/", strarr[tagi])				
-								for gi in range(0, len(gts)):
-									if gts[gi]=="0":
-										thissam['GT%d' % (gi+1)] = "ref"
-									elif gts[gi]=="1":
-										thissam['GT%d' % (gi+1)] = "alt"
-							elif tag=="AD":
-								ads = strarr[tagi].split(",")
-								thissam['ADref'] = int(ads[0])
-								thissam['ADalt'] = int(ads[1])
-							elif tag=="GL":		
-								gls = strarr[tagi].split(",")
-								thissam['GLrr'] = float(gls[0])
-								thissam['GLra'] = float(gls[1])
-								thissam['GLaa'] = float(gls[2])
-							else:
-								if re.search("\.", strarr[tagi]):
-								    thissam[tag] = float(strarr[tagi])
-								else:
-								    thissam[tag] = int(strarr[tagi])
-							tagi = tagi+1
-						samlist.append(thissam)
-						samcount += 1
-					info['_SAMPLES'] = tuple(samlist)
+                infoarr = linearr[infocol].split(";")
+                for field in infoarr:
+                    ft = field.split("=")
+                    tag = ft[0]
+                    if len(ft) > 1:
+                        if re.search("\.", ft[1]):
+                            info[tag] = float(ft[1])
+                        else:
+                            try:
+                                info[tag] = int(ft[1])
+                            except:
+                                info[tag] = ft[1]
+                    else:
+                        info[tag] = True
 
-				self.data[pos] = info
 
-				i = i+1
-				if (not (i+1) % 100000) and verbose:
-					print >> sys.stderr, '.',
+                    samlist = []
+                    if len(linearr)> sampleformatcol:
+                        strfields = linearr[sampleformatcol].split(":")
+                        samcount = 1
+                        for col in range(sampleformatcol+1, len(linearr)):
+                            strarr = linearr[col].split(":")
 
-			self.sk = set (self.data.keys())
-			if not readFromList:
-				snpfile.close()
-			if verbose:
-				print >> sys.stderr, '\nDone!\n'
+                            if strarr[0] == "./.":
+                                samcount += 1
+                                continue
+
+                            thissam = {'NUM' : samcount}
+                            tagi = 0
+                            for tag in strfields:
+                                #print strarr, tagi, tag, strarr[tagi]
+                                if tag=="GT":
+                                    gts = re.split("\||\/", strarr[tagi])
+                                    for gi in range(0, len(gts)):
+                                        if gts[gi]=="0":
+                                            thissam['GT%d' % (gi+1)] = "ref"
+                                        elif gts[gi]=="1":
+                                            thissam['GT%d' % (gi+1)] = "alt"
+                                elif tag=="AD":
+                                    ads = strarr[tagi].split(",")
+                                    thissam['ADref'] = int(ads[0])
+                                    thissam['ADalt'] = int(ads[1])
+                                elif tag=="GL":
+                                    gls = strarr[tagi].split(",")
+                                    thissam['GLrr'] = float(gls[0])
+                                    thissam['GLra'] = float(gls[1])
+                                    thissam['GLaa'] = float(gls[2])
+                                else:
+                                    if re.search("\.", strarr[tagi]):
+                                        thissam[tag] = float(strarr[tagi])
+                                    else:
+                                        thissam[tag] = int(strarr[tagi])
+                                tagi = tagi+1
+                            samlist.append(thissam)
+                            samcount += 1
+                    info['_SAMPLES'] = tuple(samlist)
+
+                self.data[pos] = info
+
+                i = i+1
+                if (not (i+1) % 100000) and verbose:
+                    print >> sys.stderr, '.',
+
+            self.sk = set (self.data.keys())
+            if not readFromList:
+                snpfile.close()
+            if verbose:
+                print >> sys.stderr, '\nDone!\n'
 
 	def readFromList(self, list, verbose = False, *vcfFormatArgs):
 			self.readFromFile(list, readFromList=True, verbose = verbose, *vcfFormatArgs)
@@ -349,72 +361,72 @@ class VCF(CoordData):
 				res.sk = set([key,])
 				return res
 
-def VCFfilter(f, filter=None, func=None, count=False, chunk = 10000, maxchunks = None, *vcfFormatArgs):
-	# Reads a VCF file chunk by chunk, performing filtering and field extraction (or element counting) for each chunk.
-	#
-	# Output:
-	# if field==None and count==False: a VCF object containing all elements passing the filter (or all elements if filter is not defined),
-	# if field is specified: a list containing this field for all elements passing the filter,
-	# if count is specified: an integer corresponding to the total number of elements passing the filter.
-	#
-	# With a test VCF consisting of 50k lines, the optimum chunk size was ~10000. 
-	# The limiting stage seems to be the merger of dictionaries, so it may actually perform faster with filtering than without it.
+def VCFfilter(f, filter=None, func=None, count=False, chunk = 5000, maxchunks = None, *vcfFormatArgs):
+    # Reads a VCF file chunk by chunk, performing filtering and field extraction (or element counting) for each chunk.
+    #
+    # Output:
+    # if field==None and count==False: a VCF object containing all elements passing the filter (or all elements if filter is not defined),
+    # if field is specified: a list containing this field for all elements passing the filter,
+    # if count is specified: an integer corresponding to the total number of elements passing the filter.
+    #
+    # With a test VCF consisting of 50k lines, the optimum chunk size was ~10000.
+    # The limiting stage seems to be the merger of dictionaries, so it may actually perform faster with filtering than without it.
 
-#		if field and count:
-#			raise ValueError('When count is True, field should be None, because only the count of entries passing the filter will be returned')
-#		f = open(fname)
-#		filtered = {} # filtered VCF.data
-#		yff = [] # (filtered) VCF.data field
-		counter = 0
-		nchunks = 0
-		while True:
-			l=[]
-			i=0
-			stp=False
-			while i<chunk:
-				line = f.readline()
-				if len(line):
-					l.append(line)
-					i+=1
-				else:
-					stp = True
-					break
+    #		if field and count:
+    #			raise ValueError('When count is True, field should be None, because only the count of entries passing the filter will be returned')
+    #		f = open(fname)
+    #		filtered = {} # filtered VCF.data
+    #		yff = [] # (filtered) VCF.data field
+        counter = 0
+        nchunks = 0
+        while True:
+            l=[]
+            i=0
+            stp=False
+            while i<chunk:
+                line = f.readline()
+                if len(line):
+                    l.append(line)
+                    i+=1
+                else:
+                    stp = True
+                    break
 
-			print >> sys.stderr, ".",
-			nchunks += 1
-			if nchunks >= maxchunks and maxchunks:
-				stp = True
+            print >> sys.stderr, ".",
+            nchunks += 1
+            if nchunks >= maxchunks and maxchunks:
+                stp = True
 
-			y = VCF()
-			y.readFromList(l, *vcfFormatArgs)
-			if filter:
-				y = y.filter(filter)
-                
-			if count:
-			    counter+=len(y)
-			func(y)
-#			elif field:
-#				if type(field)==str:
-#					yff.extend(y.field(field))
-#				elif len(field)==2:
-#					yff.extend(y.field(field[0], field[1]))
-#				else:
-#					raise ValueError('field can either be a string or a tuple of size 2: (string, sampleNo)')
-#			else:
-#                        	filtered = dict(filtered, **y.data)
+            y = VCF()
+            y.readFromList(l, *vcfFormatArgs)
+            if filter:
+                y = y.filter(filter)
 
-			l = []
-			if stp:
-				break
-		f.close()
-		print >> sys.stderr, ""
+            if count:
+                counter+=len(y)
+            func(y)
+    #			elif field:
+    #				if type(field)==str:
+    #					yff.extend(y.field(field))
+    #				elif len(field)==2:
+    #					yff.extend(y.field(field[0], field[1]))
+    #				else:
+    #					raise ValueError('field can either be a string or a tuple of size 2: (string, sampleNo)')
+    #			else:
+    #                        	filtered = dict(filtered, **y.data)
 
-		if count:
-			return counter
-#		elif field:
-#			return yff
-#		else:
-#			z = VCF()
-#			z.data = filtered
-#			z.sk = set(z.data.keys())
-#			return (z)
+            l = []
+            if stp:
+                break
+        f.close()
+        print >> sys.stderr, ""
+
+        if count:
+            return counter
+    #		elif field:
+    #			return yff
+    #		else:
+    #			z = VCF()
+    #			z.data = filtered
+    #			z.sk = set(z.data.keys())
+    #			return (z)

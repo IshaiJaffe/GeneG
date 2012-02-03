@@ -37,7 +37,7 @@ class Phenotype(models.Model):
 
 class TestVariant(models.Model):
 
-    name = models.CharField(max_length=30,unique=True)
+    name = models.CharField(max_length=30)
     description = models.CharField(max_length=700,default='',blank=True)
     source = models.CharField(max_length=30,null=True,blank=True)
     #target_script = models.CharField(max_length=50,null=True, blank=True)
@@ -47,7 +47,7 @@ class TestVariant(models.Model):
     meta = models.TextField(max_length=755,null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created = models.DateTimeField(default=datetime.now, editable=False)
-    risk_allel = models.CharField(max_length=3,null=True,blank=True)
+    risk_allel = models.CharField(max_length=5,null=True,blank=True)
 
     def __unicode__(self):
         return unicode(self.name)
@@ -69,7 +69,13 @@ class PhenotypeFamilyRelation(models.Model):
 class UserTestResult(models.Model):
     user = models.ForeignKey(User)
     variant = models.ForeignKey(TestVariant)
-    phenotype = models.ForeignKey(Phenotype)
+    variant_ref = models.CharField(max_length=20)
+    pos = models.CharField(max_length=5,null=True,blank=True,verbose_name='Reference Base(s)')
+    alt = models.CharField(max_length=5,null=True,blank=True,verbose_name='Detected Base(s)')
+    chrom = models.IntegerField(null=True,blank=True,verbose_name='Chromosome')
+    position = models.IntegerField(null=True,blank=True,verbose_name='Position in chromosome')
+    at_risk = models.BooleanField(default=False)
+    phenotype = models.ForeignKey(Phenotype,null=True)
     result = models.TextField(max_length=255,default='')
     meta= models.TextField(max_length=755,null=True,blank=True)
     modified = models.DateTimeField(default=datetime.now)
