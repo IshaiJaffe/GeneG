@@ -22,7 +22,7 @@ gluz_api.register(VariantResource())
 gluz_api.register(PhenotypeResource())
 
 urlpatterns = patterns('server.views',
-    (r'^test/',TestView.as_view()),
+    (r'^test/','test'),
     (r'^emails/',ListView.as_view(model=TestVariant)),
     (r'^api/', include(v1_api.urls)),
     (r'^api/', include(gluz_api.urls)),

@@ -1,5 +1,6 @@
 # Create your views here.
 import urllib
+import os
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
@@ -19,6 +20,7 @@ class TestView(CubicalView):
         return {'msg':'hello'}
 
 def test(request):
+    os.system('perl print.pl')
     return render_to_response('test.html')
 
 def facebook_autherize(request):
