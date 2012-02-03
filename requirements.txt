@@ -1,5 +1,5 @@
 pymongo
 django-storages
 boto
-django-celery
+django-celery-with-redis
 django-kombu

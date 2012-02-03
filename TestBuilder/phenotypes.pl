@@ -1,7 +1,7 @@
 use strict;
-use lib 'C:/src/ensembl/ensembl/modules';
-use lib 'C:/src/ensembl/ensembl/modules/Bio/EnsEMBL/DBSQL';
-use lib 'C:/src/ensembl-variation/modules';
+use lib 'ensembl/ensembl/modules';
+use lib 'ensembl/ensembl/modules/Bio/EnsEMBL/DBSQL';
+use lib 'ensembl-variation/modules';
 use Bio::EnsEMBL::Registry;
 use JSON;
 use LWP;

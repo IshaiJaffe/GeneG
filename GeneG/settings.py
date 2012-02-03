@@ -153,7 +153,7 @@ INSTALLED_APPS = (
 	'tastypie',
 	'mediagenerator',
     'djcelery',
-    'djkombu',
+#    'djkombu',
 
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
@@ -254,7 +254,16 @@ AUTH_PROFILE_MODULE = 'server.UserProfile'
 
 import djcelery
 djcelery.setup_loader()
-BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
-CELERY_RESULT_DBURI = DATABASES['default']
+BOKER_URL = 'redis://redistogo:02045d854b5940530480ed33e8f106ae@dogfish.redistogo.com:9517/'
+
+#BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
+CELERY_RESULT_BACKEND = 'mongodb'
+CELERY_MONGODB_BACKEND_SETTINGS = {
+    "host": DATABASES['default']['HOST'],
+    "port": DATABASES['default']['PORT'],
+    "database": DATABASES['default']['NAME'],
+    "taskmeta_collection": "taskmeta",
+    }
+#CELERY_RESULT_DBURI = DATABASES['default']
 
 CELERY_IMPORTS = ("server.tasks", )
