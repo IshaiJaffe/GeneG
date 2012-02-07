@@ -2,7 +2,7 @@ from django.conf.urls.defaults import url
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User, AnonymousUser
 from django.db.utils import IntegrityError
-from server.models import TestVariant, UserTestResult, PhenotypeFamily, PhenotypeFamilyRelation, Phenotype
+from server.models import TestVariant, UserTestResult, PhenotypeFamily, PhenotypeFamilyRelation, Phenotype, UserProfile
 from tastypie import fields, http
 from tastypie.models import ApiKey
 from tastypie.authentication import Authentication, ApiKeyAuthentication
@@ -135,6 +135,17 @@ class UserResource(MyResource):
                 "username"  :   ALL
             }
 
+class UserProfileResource(MyResource):
+
+    def obj_get(self, request=None, **kwargs):
+        return request.user.get_profile()
+
+    class Meta:
+        queryset = UserProfile.objects.all()
+        exclude = ('genome',)
+        authentication = ApiKeyAuthentication()
+        allowed_methods = ('get',)
+
 
 
 
@@ -166,19 +177,17 @@ class PhenotypeFamilyResource(MyResource):
             cache.set(key,obj)
         return obj
 
-
-
-class CheckUserProcessed(UserOnlyAuthorization):
-
-    def is_authorized(self, request, object=None):
-        profile = request.user.get_profile()
-        if profile.is_processing:
-            place_in_line = ''
-            if profile.place_in_line:
-                place_in_line = 'Your place in line is %d' % profile.place_in_line
-            return http.HttpNotFound('Still processing genome. ' + place_in_line)
-        return True
-
+#class CheckUserProcessed(UserOnlyAuthorization):
+#
+#    def is_authorized(self, request, object=None):
+#        profile = request.user.get_profile()
+#        if profile.is_processing:
+#            place_in_line = ''
+#            if profile.place_in_line:
+#                place_in_line = 'Your place in line is %d' % profile.place_in_line
+#            return http.HttpNotFound('Still processing genome. ' + place_in_line)
+#        return True
+#
 
 class TestResultResource(MyResource):
     def build_filters(self, filters=None):
@@ -195,12 +204,13 @@ class TestResultResource(MyResource):
         return orm_filters
 
     class Meta:
-        queryset = UserTestResult.objects.all()
+        queryset = UserTestResult.objects.all().order_by('-modified')
         allowed_methods = ['get']
-        fields = ('phenotype','result')
+        #fields = ('phenotype','result')
         filtering = ('phenotype_family',)
+        ordering = ('phenotype','variant','chrom','position')
         authentication = ApiKeyAuthentication()
-        authorization =  CheckUserProcessed()
+        authorization = UserOnlyAuthorization()
 
 class TestResource(MyResource):
 

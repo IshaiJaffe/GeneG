@@ -13,17 +13,29 @@ TEST_SOURCES = (
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
     genome = models.FileField(upload_to='genomes',null=True,blank=True)
-    is_processing = models.BooleanField(default=True)
-    place_in_line = models.IntegerField(null=True,blank=True)
+    is_processing = models.BooleanField(default=False)
+    is_queueing = models.BooleanField(default=True)
     last_processed = models.DateTimeField(null=True,editable=False)
 
     def __unicode__(self):
         return unicode(self.user)
 
+    def __init__(self, *args, **kwargs):
+        self.was_genome_url = None
+        if self.genome:
+            self.was_genome_url = self.genome.url
+        super(UserProfile,self).__init__(*args,**kwargs)
+
+    def save(self,*args,**kwags):
+        if self.genome and self.was_genome_url != self.genome.url:
+            self.is_queueing = True
+        return super(UserProfile,self).save(*args,**kwargs)
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
+
 post_save.connect(create_user_profile, sender=User)
 post_save.connect(create_api_key,sender=User)
 
@@ -78,11 +90,7 @@ class UserTestResult(models.Model):
     phenotype = models.ForeignKey(Phenotype,null=True)
     result = models.TextField(max_length=255,default='')
     meta= models.TextField(max_length=755,null=True,blank=True)
-    modified = models.DateTimeField(default=datetime.now)
-
-    def save(self, *args, **kwargs):
-        self.modified = datetime.now()
-        return super(UserTestResult,self).save(*args,**kwargs)
+    modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return u'%s | %s' % (unicode(self.user),unicode(self.phenotype))

@@ -1,7 +1,9 @@
 from celery.task import task
 import datetime
+import os
 from django.contrib.auth.models import User
-from server.models import TestVariant, UserTestResult
+from django.db.models.signals import post_save
+from server.models import TestVariant, UserTestResult, UserProfile
 
 __author__ = 'Ishai'
 
@@ -9,9 +11,38 @@ import vcf
 import urllib2
 
 @task
-def process_genome(user):
+def say_hello(to='someone'):
+    print 'hello %s' % to
+
+def check_genome_upload(sender,instance,created,**kwargs):
+    # if userprofile is created with genome or if genome file has changed => send genome to process
+    if instance.genome and instance.genome.url and instance.is_queueing:
+        print 'send genome to process for user %s' % instance.user.username
+        process_genome.delay(instance.user_id)
+
+post_save.connect(check_genome_upload,sender=UserProfile)
+
+@task
+def update_variant_db(phenoype=None):
+    cmd = 'TestBuilder\phenotypes.pl'
+    if phenoype:
+        cmd += ' ' + phenoype
+    os.system(os.path.normpath(cmd))
+
+@task
+def update_users_profile():
+    users = UserProfile.objects.filter(last_processed__lt=datetime.datetime.now()-datetime.timedelta(days=30))
+    for user in users:
+        process_genome.delay(user.user_id)
+
+@task
+def process_genome(user_id):
+    user = User.objects.get(id=user_id)
     profile = user.get_profile()
-    profile.place_in_line = 0
+    if not profile.is_queueing:
+        return
+    profile.is_queueing = False
+    profile.is_processing = True
     profile.save()
     # processing
     path = profile.genome.url

@@ -1,4 +1,5 @@
 # Django settings for pocketgenome project.
+from datetime import timedelta
 import os
 
 PRODUCTION = 'MONGOLAB_URI' in os.environ
@@ -254,7 +255,9 @@ AUTH_PROFILE_MODULE = 'server.UserProfile'
 
 import djcelery
 djcelery.setup_loader()
-BOKER_URL = 'redis://redistogo:02045d854b5940530480ed33e8f106ae@dogfish.redistogo.com:9517/'
+BROKER_URL = 'redis://redistogo:02045d854b5940530480ed33e8f106ae@dogfish.redistogo.com:9517/'
+if not PRODUCTION:
+    BROKER_URL = 'redis://localhost:6379/'
 
 #BROKER_BACKEND = "djkombu.transport.DatabaseTransport"
 CELERY_RESULT_BACKEND = 'mongodb'
@@ -267,3 +270,13 @@ CELERY_MONGODB_BACKEND_SETTINGS = {
 #CELERY_RESULT_DBURI = DATABASES['default']
 
 CELERY_IMPORTS = ("server.tasks", )
+
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
+#CELERYBEAT_SCHEDULE = {
+#    "runs-every-3-seconds": {
+#        "task": "server.tasks.say_hello",
+#        "schedule": timedelta(seconds=3),
+#        "args": ('hardcoded',)
+#    },
+#}
