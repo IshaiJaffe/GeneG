@@ -7,7 +7,12 @@ use JSON;
 use LWP;
 use WWW::Mechanize;
 
-#getAllVariants();
+
+unless ($#ARGV == 0){
+	getAllVariants();
+}
+
+getPhenotypeByVarient(@ARGV);
 
 sub getAllVariants {
 	my $registry = registry();
@@ -87,8 +92,6 @@ sub getAllVariants {
 		$fetched++;
 	}
 }
-
-getPhenotypeByVarient('rs1421085','rs17636733', 'rs10506410');
 
 #register to Ensembel data base
 sub registry {
