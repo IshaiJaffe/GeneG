@@ -1,2 +1,2 @@
 mkdir MongoFiles
-c:\bin\mongo\mongod --dbpath=MongoFiles --rest -vvvvv
+Scripts\mongod --dbpath=MongoFiles --rest -vvvvv

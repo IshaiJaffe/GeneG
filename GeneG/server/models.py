@@ -21,12 +21,12 @@ class UserProfile(models.Model):
         return unicode(self.user)
 
     def __init__(self, *args, **kwargs):
+        super(UserProfile,self).__init__(*args,**kwargs)
         self.was_genome_url = None
         if self.genome:
             self.was_genome_url = self.genome.url
-        super(UserProfile,self).__init__(*args,**kwargs)
 
-    def save(self,*args,**kwags):
+    def save(self,*args,**kwargs):
         if self.genome and self.was_genome_url != self.genome.url:
             self.is_queueing = True
         return super(UserProfile,self).save(*args,**kwargs)
