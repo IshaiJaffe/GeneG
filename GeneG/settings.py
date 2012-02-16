@@ -3,7 +3,7 @@ from datetime import timedelta
 import os
 
 PRODUCTION = 'MONGOLAB_URI' in os.environ
-CODE_ROOT = 'C:/Uni/GeneG/GeneG/'
+CODE_ROOT = 'C:/Users/Aviram/Documents/GeneG/GeneG/'
 
 BASE_URL = 'http://dev.empeeric.com/'
 
