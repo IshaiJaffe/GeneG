@@ -1,9 +1,7 @@
 import django
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls.defaults import patterns, include
 from django.contrib.auth.decorators import login_required
-from django.views.generic.list import ListView
-from server.models import TestVariant
-from server.views import TestView, MainView
+from server.views import MainView, LoginView, RegisterView, logout_view, UploadView,process_genomes
 import settings
 
 from tastypie.api import Api
@@ -22,13 +20,13 @@ gluz_api.register(VariantResource())
 gluz_api.register(PhenotypeResource())
 
 urlpatterns = patterns('server.views',
-    (r'^test/','test'),
-    (r'^emails/',ListView.as_view(model=TestVariant)),
     (r'^api/', include(v1_api.urls)),
     (r'^api/', include(gluz_api.urls)),
-    (r'^facebook/autherize/', 'facebook_autherize'),
-    (r'^facebook/access_token/', 'facebook_access_token'),
-    (r'^/',login_required(MainView.as_view())),
+    (r'^login/',LoginView.as_view()),
+    (r'^register/',RegisterView.as_view()),
+    (r'^upload/',UploadView.as_view()),
+    (r'^logout/',logout_view),
+    (r'^process/',process_genomes),
+    (r'^',login_required(MainView.as_view())),
     (r'^mobile/(.*)$', django.views.static.serve, {'document_root': settings.CODE_ROOT + 'www/'}),
-    (r'^process/(?P<user_id>[0-9a-f]+)/', 'process'),
 )

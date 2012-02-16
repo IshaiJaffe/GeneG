@@ -14,13 +14,15 @@ import urllib2
 def say_hello(to='someone'):
     print 'hello %s' % to
 
-def check_genome_upload(sender,instance,created,**kwargs):
-    # if userprofile is created with genome or if genome file has changed => send genome to process
-    if instance.genome and instance.genome.url and instance.is_queueing:
-        print 'send genome to process for user %s' % instance.user.username
-        process_genome.delay(instance.user_id)
-
-post_save.connect(check_genome_upload,sender=UserProfile)
+#def check_genome_upload(sender,instance,created,**kwargs):
+#    # if userprofile is created with genome or if genome file has changed => send genome to process
+#    if instance.genome and instance.genome.url and \
+#       instance.is_queueing and \
+#       instance.was_genome_url != instance.genome.url:
+#        print 'send genome to process for user %s' % instance.user.username
+#        process_genome.delay(instance.user_id)
+#
+#post_save.connect(check_genome_upload,sender=UserProfile)
 
 @task
 def update_variant_db(phenoype=None):
@@ -31,22 +33,37 @@ def update_variant_db(phenoype=None):
 
 @task
 def update_users_profile():
-    users = UserProfile.objects.filter(last_processed__lt=datetime.datetime.now()-datetime.timedelta(days=30))
+    print 'looking for users who need to have their results updated'
+    users = list(UserProfile.objects.filter(last_processed__lt=datetime.datetime.now()-datetime.timedelta(days=30)))
+    users.extend(list(UserProfile.objects.filter(last_processed=None).exclude(genome=None)))
     for user in users:
-        process_genome.delay(user.user_id)
+#        if not user.is_queueing and not user.is_processing:
+        print 'send user %s for processing' % user.user_id
+        user.is_queueing = True
+        user.save()
 
 @task
 def process_genome(user_id):
-    user = User.objects.get(id=user_id)
-    profile = user.get_profile()
-    if not profile.is_queueing:
+    print 'processing genome for user %s' % user_id
+    try:
+        user = User.objects.get(id=user_id)
+    except Exception as e:
+        print e.message
+        return
+    print 'processing genome for user %s' % user.username
+    try:
+        profile = user.get_profile()
+    except Exception as e:
+        print 'exception: %s' % e.message
+        return
+    if not profile.is_queueing or not profile.genome:
         return
     profile.is_queueing = False
     profile.is_processing = True
     profile.save()
     # processing
     path = profile.genome.url
-
+    print 'getting path %s' % path
     fp = urllib2.urlopen(path)
     process_genome_file(fp,user)
     profile.is_processing = False

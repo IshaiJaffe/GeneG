@@ -1,7 +1,7 @@
 use strict;
-use lib 'ensembl/ensembl/modules';
-use lib 'ensembl/ensembl/modules/Bio/EnsEMBL/DBSQL';
-use lib 'ensembl-variation/modules';
+use lib 'C:/Uni/GeneG/TestBuilder/ensembl/ensembl/modules';
+use lib 'C:/Uni/GeneG/TestBuilder/ensembl/ensembl/modules/Bio/EnsEMBL/DBSQL';
+use lib 'C:/Uni/GeneG/TestBuilder/ensembl-variation/modules';
 use Bio::EnsEMBL::Registry;
 use JSON;
 use LWP;
