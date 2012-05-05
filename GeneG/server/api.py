@@ -2,7 +2,7 @@ from django.conf.urls.defaults import url
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User, AnonymousUser
 from django.db.utils import IntegrityError
-from server.models import TestVariant, UserTestResult, PhenotypeFamily, PhenotypeFamilyRelation, Phenotype, UserProfile
+from server.models import Variant, UserResult,UserProfile
 from tastypie import fields, http
 from tastypie.models import ApiKey
 from tastypie.authentication import Authentication, ApiKeyAuthentication
@@ -149,33 +149,33 @@ class UserProfileResource(MyResource):
 
 
 
-class PhenotypeFamilyResource(MyResource):
-    class Meta:
-        queryset = PhenotypeFamily.objects.filter(is_active=True)
-        allowed_methods = ['get']
-        fields = ('name','description')
-        cache = MyCache(expire=60*60)
-
-    # returns all phenotypes of a phenotype family - cached
-    @staticmethod
-    def get_phenotypes(family_name):
-        cache = MyCache(expire=60*60)
-        key = 'phenotypes_of_' + family_name
-        obj = cache.get(key)
-        if not obj:
-            try:
-                family = PhenotypeFamily.objects.get(name=family_name)
-                relations = PhenotypeFamilyRelation.objects.filter(family=family)
-                ids = [r.phenotype_id for r in relations]
-                phenotypes = Phenotype.objects.filter(pk__in=ids)
-                obj = phenotypes
-            except PhenotypeFamily.DoesNotExist:
-                obj = []
-            obj = list(obj)
-            if not len(obj):
-                obj = []
-            cache.set(key,obj)
-        return obj
+#class PhenotypeFamilyResource(MyResource):
+#    class Meta:
+#        queryset = PhenotypeFamily.objects.filter(is_active=True)
+#        allowed_methods = ['get']
+#        fields = ('name','description')
+#        cache = MyCache(expire=60*60)
+#
+#    # returns all phenotypes of a phenotype family - cached
+#    @staticmethod
+#    def get_phenotypes(family_name):
+#        cache = MyCache(expire=60*60)
+#        key = 'phenotypes_of_' + family_name
+#        obj = cache.get(key)
+#        if not obj:
+#            try:
+#                family = PhenotypeFamily.objects.get(name=family_name)
+#                relations = PhenotypeFamilyRelation.objects.filter(family=family)
+#                ids = [r.phenotype_id for r in relations]
+#                phenotypes = Phenotype.objects.filter(pk__in=ids)
+#                obj = phenotypes
+#            except PhenotypeFamily.DoesNotExist:
+#                obj = []
+#            obj = list(obj)
+#            if not len(obj):
+#                obj = []
+#            cache.set(key,obj)
+#        return obj
 
 #class CheckUserProcessed(UserOnlyAuthorization):
 #
@@ -189,22 +189,22 @@ class PhenotypeFamilyResource(MyResource):
 #        return True
 #
 
-class TestResultResource(MyResource):
-    def build_filters(self, filters=None):
-        if filters is None:
-            filters = {}
-
-        orm_filters = super(MyResource, self).build_filters(filters)
-
-        if "phenotype_family" in filters:
-            sqs = PhenotypeFamilyResource.get_phenotypes(filters['phenotype_family'])
-
-            orm_filters["phenotype__in"] = sqs
-
-        return orm_filters
+class UserResultResource(MyResource):
+#    def build_filters(self, filters=None):
+#        if filters is None:
+#            filters = {}
+#
+#        orm_filters = super(MyResource, self).build_filters(filters)
+#
+#        if "phenotype_family" in filters:
+#            sqs = PhenotypeFamilyResource.get_phenotypes(filters['phenotype_family'])
+#
+#            orm_filters["phenotype__in"] = sqs
+#
+#        return orm_filters
 
     class Meta:
-        queryset = UserTestResult.objects.all().order_by('-modified')
+        queryset = UserResult.objects.all().order_by('-modified')
         allowed_methods = ['get']
         #fields = ('phenotype','result')
         filtering = ('phenotype_family',)
@@ -212,31 +212,31 @@ class TestResultResource(MyResource):
         authentication = ApiKeyAuthentication()
         authorization = UserOnlyAuthorization()
 
-class TestResource(MyResource):
+class VariantResource(MyResource):
 
     class Meta:
-        queryset = TestVariant.objects.all()
+        queryset = Variant.objects.all()
         allowed_methods = ['get']
         authentication = ApiKeyAuthentication()
 
 # gluzman's api
 class VariantResource(MyResource):
-    phenotype = fields.ForeignKey('server.api.PhenotypeResource',attribute='phenotype',null=True,blank=False)
+#    phenotype = fields.ForeignKey('server.api.PhenotypeResource',attribute='phenotype',null=True,blank=False)
     class Meta:
-        queryset = TestVariant.objects.all()
+        queryset = Variant.objects.all()
 #        fields = ['id','name','description','source','phenotype_id']
-        filtering = {'name':ALL,'phenotype':ALL}
+        filtering = {'name':ALL,'allel_phenotypes':ALL}
         allowed_methods = ['get','post','put','delete']
         authorization = Authorization()
         authentication = ApiKeyAuthentication()
         always_return_data = True
 
-class PhenotypeResource(MyResource):
-    class Meta:
-        queryset = Phenotype.objects.all()
-        allowed_methods = ['get','post','put','delete']
-        filtering = {'name':ALL}
-        authentication = ApiKeyAuthentication()
-        authorization = Authorization()
-        always_return_data = True
+#class PhenotypeResource(MyResource):
+#    class Meta:
+#        queryset = Phenotype.objects.all()
+#        allowed_methods = ['get','post','put','delete']
+#        filtering = {'name':ALL}
+#        authentication = ApiKeyAuthentication()
+#        authorization = Authorization()
+#        always_return_data = True
 

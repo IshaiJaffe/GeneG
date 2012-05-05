@@ -3,7 +3,7 @@ import datetime
 import os
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-from server.models import TestVariant, UserTestResult, UserProfile
+from server.models import Variant, UserResult, UserProfile
 
 __author__ = 'Ishai'
 
@@ -13,10 +13,12 @@ import urllib2
 @task
 def say_hello(to='someone'):
     print 'hello %s' % to
+    return True
 
 def check_genome_upload(sender,instance,created,**kwargs):
     # if userprofile is created with genome or if genome file has changed => send genome to process
-    if instance.genome and instance.genome.url and instance.is_queueing:
+    if instance.genome and instance.genome.url and instance.is_queueing and \
+       instance.was_genome_url != instance.genome.url:
         print 'send genome to process for user %s' % instance.user.username
         process_genome.delay(instance.user_id)
 
@@ -28,34 +30,52 @@ def update_variant_db(phenoype=None):
     if phenoype:
         cmd += ' ' + phenoype
     os.system(os.path.normpath(cmd))
+    return True
 
 @task
 def update_users_profile():
-    users = UserProfile.objects.filter(last_processed__lt=datetime.datetime.now()-datetime.timedelta(days=30))
+    print 'looking for users who need to have their results updated'
+    users = list(UserProfile.objects.filter(last_processed__lt=datetime.datetime.now()-datetime.timedelta(days=60)))
+    users.extend(list(UserProfile.objects.filter(last_processed=None).exclude(genome=None)))
     for user in users:
-        process_genome.delay(user.user_id)
+#        if not user.is_queueing and not user.is_processing:
+        print 'send user %s for processing' % user.user_id
+        user.is_queueing = True
+        user.save()
+    return True
 
 @task
 def process_genome(user_id):
-    user = User.objects.get(id=user_id)
-    profile = user.get_profile()
-    if not profile.is_queueing:
+    print 'processing genome for user %s' % user_id
+    try:
+        user = User.objects.get(id=user_id)
+    except Exception as e:
+        print e.message
+        return
+    print 'processing genome for user %s' % user.username
+    try:
+        profile = user.get_profile()
+    except Exception as e:
+        print 'exception: %s' % e.message
+        return
+    if not profile.is_queueing or not profile.genome:
         return
     profile.is_queueing = False
     profile.is_processing = True
     profile.save()
     # processing
     path = profile.genome.url
-
+    print 'getting path %s' % path
     fp = urllib2.urlopen(path)
     process_genome_file(fp,user)
     profile.is_processing = False
     profile.last_processed = datetime.datetime.now()
     profile.save()
+    return True
 
 
 def process_genome_file(fp,user):
-    all_variants = TestVariant.objects.all()
+    all_variants = Variant.objects.all()
     variants_by_name = {}
     for variant in all_variants:
         if variant.name in variants_by_name:
@@ -74,21 +94,17 @@ def process_genome_file(fp,user):
 #                variant.save()
 #                variants = [variant]
             for variant in variants:
-                phenotype = variant.phenotype
-                test_result,created = UserTestResult.objects.get_or_create(user=user,variant=variant)
-                test_result.phenotype = phenotype
+#                phenotype = variant.phenotype
+                test_result,created = UserResult.objects.get_or_create(user=user,variant=variant)
+#                test_result.phenotype = phenotype
                 test_result.ref = value['REF']
-                test_result.alt = value['ALT']
-                risk_allel = variant.risk_allel
-                if risk_allel:
-                    if risk_allel.lower().strip() == value['ALT'].lower().strip():
-                        test_result.at_risk = True
-                    else:
-                        test_result.at_risk = False
-                else:
-                    test_result.at_risk = True
+                test_result.alt = value['ALT'].lower().strip()
+                allel_phenotypes = variant.allel_phenotypes
+                user_phenotypes = filter(lambda a:a.allel == test_result.alt,allel_phenotypes)
+                test_result.at_risk = len(user_phenotypes) > 0
+
                 if test_result.at_risk and test_result.phenotype:
-                    test_result.result = 'In risk of ' + phenotype.name
+                    test_result.result = '\n'.join([a.phenotype for a in user_phenotypes])
                 else:
                     test_result.result = ''
                 test_result.chrom = value['CHROM']
@@ -103,3 +119,4 @@ def test_genome():
     path = 'C:/Users/Ishai/Downloads/test.vcf'
     fp = open(path)
     process_genome_file(fp,User.objects.all()[0])
+    return True
