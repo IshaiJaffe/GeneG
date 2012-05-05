@@ -13,16 +13,16 @@ import urllib2
 @task
 def say_hello(to='someone'):
     print 'hello %s' % to
+    return True
 
-#def check_genome_upload(sender,instance,created,**kwargs):
-#    # if userprofile is created with genome or if genome file has changed => send genome to process
-#    if instance.genome and instance.genome.url and \
-#       instance.is_queueing and \
-#       instance.was_genome_url != instance.genome.url:
-#        print 'send genome to process for user %s' % instance.user.username
-#        process_genome.delay(instance.user_id)
-#
-#post_save.connect(check_genome_upload,sender=UserProfile)
+def check_genome_upload(sender,instance,created,**kwargs):
+    # if userprofile is created with genome or if genome file has changed => send genome to process
+    if instance.genome and instance.genome.url and instance.is_queueing and \
+       instance.was_genome_url != instance.genome.url:
+        print 'send genome to process for user %s' % instance.user.username
+        process_genome.delay(instance.user_id)
+
+post_save.connect(check_genome_upload,sender=UserProfile)
 
 @task
 def update_variant_db(phenoype=None):
@@ -30,6 +30,7 @@ def update_variant_db(phenoype=None):
     if phenoype:
         cmd += ' ' + phenoype
     os.system(os.path.normpath(cmd))
+    return True
 
 @task
 def update_users_profile():
@@ -41,6 +42,7 @@ def update_users_profile():
         print 'send user %s for processing' % user.user_id
         user.is_queueing = True
         user.save()
+    return True
 
 @task
 def process_genome(user_id):
@@ -69,6 +71,7 @@ def process_genome(user_id):
     profile.is_processing = False
     profile.last_processed = datetime.datetime.now()
     profile.save()
+    return True
 
 
 def process_genome_file(fp,user):
@@ -116,3 +119,4 @@ def test_genome():
     path = 'C:/Users/Ishai/Downloads/test.vcf'
     fp = open(path)
     process_genome_file(fp,User.objects.all()[0])
+    return True

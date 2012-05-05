@@ -268,6 +268,7 @@ CELERY_MONGODB_BACKEND_SETTINGS = {
     "database": DATABASES['default']['NAME'],
     "taskmeta_collection": "taskmeta",
     }
+
 #CELERY_RESULT_DBURI = DATABASES['default']
 
 CELERY_IMPORTS = ("server.tasks", )
