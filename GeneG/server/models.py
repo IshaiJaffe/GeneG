@@ -58,6 +58,7 @@ class Variant(models.Model):
     name = models.CharField(max_length=30)
     allel_phenotypes = ListField(EmbeddedModelField(AllelPhenotype), editable=False)
     drugs = ListField(models.CharField(max_length=30))
+    diseases = ListField(models.CharField(max_length=30))
 #    description = models.CharField(max_length=700,default='',blank=True)
     source = models.CharField(max_length=30,null=True,blank=True, choices=SOURCES)
     pubmed_id = models.CharField(max_length=30,null=True,blank=True)

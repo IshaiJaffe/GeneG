@@ -237,10 +237,11 @@ REGISTER_URL = '/register/'
 LOGIN_REDIRECT_URL = '/'
 
 #Storage
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-AWS_ACCESS_KEY_ID = 'AKIAIK5YCK53XZM33RPA'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'geneg-genomes'
+if PRODUCTION:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+    AWS_ACCESS_KEY_ID = 'AKIAIK5YCK53XZM33RPA'
+    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_STORAGE_BUCKET_NAME = 'geneg-genomes'
 #AWS_S3_CUSTOM_DOMAIN = 'd1hg4pg1k1dk6u.cloudfront.net'
 
 
