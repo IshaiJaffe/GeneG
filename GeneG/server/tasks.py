@@ -3,7 +3,7 @@ import datetime
 import os
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-from server.models import TestVariant, UserTestResult, UserProfile
+from server.models import Variant, UserResult, UserProfile
 
 __author__ = 'Ishai'
 
@@ -34,7 +34,7 @@ def update_variant_db(phenoype=None):
 @task
 def update_users_profile():
     print 'looking for users who need to have their results updated'
-    users = list(UserProfile.objects.filter(last_processed__lt=datetime.datetime.now()-datetime.timedelta(days=30)))
+    users = list(UserProfile.objects.filter(last_processed__lt=datetime.datetime.now()-datetime.timedelta(days=60)))
     users.extend(list(UserProfile.objects.filter(last_processed=None).exclude(genome=None)))
     for user in users:
 #        if not user.is_queueing and not user.is_processing:
@@ -72,7 +72,7 @@ def process_genome(user_id):
 
 
 def process_genome_file(fp,user):
-    all_variants = TestVariant.objects.all()
+    all_variants = Variant.objects.all()
     variants_by_name = {}
     for variant in all_variants:
         if variant.name in variants_by_name:
@@ -91,21 +91,17 @@ def process_genome_file(fp,user):
 #                variant.save()
 #                variants = [variant]
             for variant in variants:
-                phenotype = variant.phenotype
-                test_result,created = UserTestResult.objects.get_or_create(user=user,variant=variant)
-                test_result.phenotype = phenotype
+#                phenotype = variant.phenotype
+                test_result,created = UserResult.objects.get_or_create(user=user,variant=variant)
+#                test_result.phenotype = phenotype
                 test_result.ref = value['REF']
-                test_result.alt = value['ALT']
-                risk_allel = variant.risk_allel
-                if risk_allel:
-                    if risk_allel.lower().strip() == value['ALT'].lower().strip():
-                        test_result.at_risk = True
-                    else:
-                        test_result.at_risk = False
-                else:
-                    test_result.at_risk = True
+                test_result.alt = value['ALT'].lower().strip()
+                allel_phenotypes = variant.allel_phenotypes
+                user_phenotypes = filter(lambda a:a.allel == test_result.alt,allel_phenotypes)
+                test_result.at_risk = len(user_phenotypes) > 0
+
                 if test_result.at_risk and test_result.phenotype:
-                    test_result.result = 'In risk of ' + phenotype.name
+                    test_result.result = '\n'.join([a.phenotype for a in user_phenotypes])
                 else:
                     test_result.result = ''
                 test_result.chrom = value['CHROM']
